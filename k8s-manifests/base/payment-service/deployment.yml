@@ -16,6 +16,7 @@ spec:
       containers:
         - name: payment-service
           image: artorient/payment-service:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8083
           env:
@@ -27,13 +28,18 @@ spec:
               value: "payment-kafka:9092"
             - name: APP_EXTERNAL_API_RANDOM_NUMBER_BASE_URL
               value: "https://www.random.org"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_SECRET
 
           startupProbe:
             httpGet:
               path: /actuator/health
               port: 8083
-            initialDelaySeconds: 5
-            periodSeconds: 5
+            initialDelaySeconds: 30
+            periodSeconds: 10
             failureThreshold: 20
 
           readinessProbe:

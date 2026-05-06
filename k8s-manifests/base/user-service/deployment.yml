@@ -22,7 +22,6 @@ spec:
             - containerPort: 8080
 
           env:
-            # --- DATABASE ---
             - name: DB_HOST
               value: "postgres"
             - name: DB_PORT
@@ -30,36 +29,37 @@ spec:
             - name: DB_NAME
               value: "userdb"
             - name: DB_USER
-              value: "postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
-                  key: password
+                  key: POSTGRES_PASSWORD
 
-            # --- REDIS ---
             - name: REDIS_HOST
               value: "redis"
             - name: REDIS_PORT
               value: "6379"
 
-            # --- JWT ---
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: jwt-secret
-                  key: secret
+                  key: JWT_SECRET
 
           readinessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 5
+            initialDelaySeconds: 30
+            periodSeconds: 10
 
           livenessProbe:
             httpGet:
               path: /actuator/health
               port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 20
